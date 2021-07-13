@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import Button from "@material-ui/core/Button"
 import TextField from "@material-ui/core/TextField"
 import "./App.css"
@@ -6,6 +6,7 @@ import "./App.css"
 export default function App() {
 	const [items, setItems] = useState([])
 	const [text, setText] = useState("")
+	const textField = useRef(null)
 
 	useEffect(() => {
 		if ("items" in localStorage)
@@ -22,6 +23,7 @@ export default function App() {
 	const addItem = () => {
 		setItems((prevItems) => [...prevItems, text])
 		setText("")
+		textField.current.querySelector('input').focus()
 	}
 
 	const removeItem = (index) => {
@@ -53,7 +55,7 @@ export default function App() {
 					</li>
 				))}
 			</ul>
-			<TextField
+			<TextField ref={textField}
 				value={text}
 				onChange={({ target: { value } }) => setText(value)}
 				onKeyDown={(event) => {
@@ -61,6 +63,7 @@ export default function App() {
 						addItem()
 				}}
 				label="List item"
+				style={{ width: "350px" }}
 			/>
 			<Button variant="contained" disabled={!text} onClick={addItem}>
 				Add Item
