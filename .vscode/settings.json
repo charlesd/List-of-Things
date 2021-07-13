@@ -1,0 +1,6 @@
+{
+	"telemetry.enableTelemetry": false,
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	"editor.formatOnSave": false
+}
