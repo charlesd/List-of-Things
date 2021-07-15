@@ -5,29 +5,35 @@ import "./App.css"
 
 export default function App() {
 	const [items, setItems] = useState([])
-	const [text, setText] = useState("")
-	const textField = useRef(null)
+	const [desc, setDesc] = useState("")
+	const [qty, setQty] = useState(1)
+	const descField = useRef(null)
 
 	useEffect(() => {
 		if ("items" in localStorage)
 			setItems(JSON.parse(localStorage["items"]))
-		if ("text" in localStorage)
-			setText(JSON.parse(localStorage["text"]))
+		if ("desc" in localStorage)
+			setDesc(JSON.parse(localStorage["desc"]))
+		if ("qty" in localStorage)
+			setQty(JSON.parse(localStorage["qty"]))
 	}, [])
 
 	useEffect(() => {
 		localStorage["items"] = JSON.stringify(items)
-		localStorage["text"] = JSON.stringify(text)
-	}, [items, text])
+		localStorage["desc"] = JSON.stringify(desc)
+		localStorage["qty"] = JSON.stringify(qty)
+	}, [items, desc, qty])
 
 	const addItem = () => {
-		setItems((prevItems) => [...prevItems, text])
-		setText("")
-		textField.current.querySelector('input').focus()
+		setItems((prevItems) => [...prevItems, {desc, qty}])
+		setDesc("")
+		setQty(1)
+		descField.current.querySelector('input').focus()
 	}
 
 	const removeItem = (index) => {
-		setText(items[index])
+		setDesc(items[index].desc)
+		setQty(items[index].qty)
 		setItems((prevItems) => prevItems.filter((item, i) => i !== index))
 	}
 
@@ -45,27 +51,53 @@ export default function App() {
 		<div className="App">
 			<h1>My List of Things</h1>
 			<ul style={{/* border: "solid 1px red" */}}>
-				{items.map((item, index) => (
+				<li>
+					<span>&nbsp;</span>
+					<span>Description</span>
+					<span>Qty</span>
+				</li>
+				{items.map(({desc, qty}, index) => (
 					<li>
-						<button onClick={() => removeItem(index)}>x</button>
-						<button disabled={index === 0} onClick={() => moveUpItem(index)}>
-							^
-						</button>
-						{item}
+						<span>
+							<button onClick={() => removeItem(index)}>x</button>
+							<button disabled={index === 0} onClick={() => moveUpItem(index)}>
+								^
+							</button>
+						</span>
+						<span>{desc}</span>
+						<span>{qty}</span>
 					</li>
 				))}
 			</ul>
-			<TextField ref={textField}
-				value={text}
-				onChange={({ target: { value } }) => setText(value)}
-				onKeyDown={(event) => {
-					if (event.keyCode === 13 && event.target.value) 
+			<TextField ref={descField}
+				value={desc}
+				onChange={({ target: { value } }) => 
+					setDesc(value)
+				}
+				onKeyDown={({keyCode, target: {value}}) =>
+					keyCode === 13 && value && qty > 0 &&
 						addItem()
-				}}
-				label="List item"
+				}
+				label="Description"
 				style={{ width: "350px" }}
 			/>
-			<Button variant="contained" disabled={!text} onClick={addItem}>
+			<TextField
+				type="number"
+				label="Qty"
+				value={qty}
+				onChange={({ target: { value } }) => 
+					value > 0 &&
+						setQty(value)
+				}
+				onKeyDown={({ keyCode, target: { value } }) => 
+					keyCode === 13 && desc && value > 0 &&
+						addItem()
+				}
+				InputLabelProps={{
+				//	shrink: true,
+				}}
+			/>
+			<Button variant="contained" disabled={!desc} onClick={addItem}>
 				Add Item
 			</Button>
 		</div>
